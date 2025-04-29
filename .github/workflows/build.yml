@@ -9,69 +9,57 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # حد أقصى للعملية بالكامل
+    timeout-minutes: 15
 
     steps:
-      # الخطوة 1: تحميل الكود المصدري
+      # Step 1: Checkout code
       - uses: actions/checkout@v4
 
-      # الخطوة 2: تثبيت Qt والأدوات الأساسية (مع التخزين المؤقت)
-      - name: Install Qt with Cache
+      # Step 2: Install Qt with caching
+      - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           cached: true
-          setup-python: false
 
-      - name: Install System Dependencies
+      # Step 3: Install system dependencies
+      - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             build-essential \
             libgl1-mesa-dev \
-            xvfb
+            xvfb \
+            mesa-common-dev
 
-      # الخطوة 3: البناء المتوازي
-      - name: Build Project
+      # Step 4: Build project
+      - name: Build
         run: |
           qmake advanced_tic_tac_toe.pro
-          make -j$(nproc)  # استخدام جميع أنوية المعالج
+          make -j$(nproc)
 
-      # الخطوة 4: الاختبار الآلي مع Xvfb
-      - name: Run Automated Tests
-        timeout-minutes: 3  # حد منفصل للاختبارات
+      # Step 5: Run tests
+      - name: Test
+        timeout-minutes: 3
         run: |
-          # إنشاء ملف log للنتائج
           CI_LOG_FILE="ci_test_$(date +%Y%m%d_%H%M%S).log"
-          
-          # تشغيل مع وضع CI والإغلاق التلقائي بعد 20 ثانية
           xvfb-run --auto-servernum \
-          ./advanced_tic_tac_toe \
+            ./advanced_tic_tac_toe \
             --ci-mode \
             --test-timeout 20000 2>&1 | tee $CI_LOG_FILE
 
-          # التحقق من نجاح الاختبارات
-          if grep -q "CI test completed successfully" $CI_LOG_FILE; then
-            echo "✅ All tests passed successfully"
-          else
-            echo "❌ Tests failed or timed out"
+          if ! grep -q "CI test completed successfully" $CI_LOG_FILE; then
+            echo "❌ Tests failed"
             exit 1
           fi
+          echo "✅ All tests passed"
 
-      # الخطوة 5: (اختياري) حزمة التطبيق
-      - name: Package Artifacts
-        if: success()
-        run: |
-          mkdir -p package
-          cp advanced_tic_tac_toe package/
-          tar -czvf qt_app_build_${{ github.run_id }}.tar.gz package/
-          
-      # الخطوة 6: (اختياري) رفع النتائج
-      - name: Upload Test Results
+      # Step 6: Upload artifacts (fixed version)
+      - name: Upload Artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # Updated to v4
         with:
-          name: test-results
+          name: build-artifacts
           path: |
             *.log
-            qt_app_build_*.tar.gz
+            advanced_tic_tac_toe
