@@ -1,37 +1,39 @@
-name: Qt CI Build
+name: Qt CI Pipeline
 
 on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    env:
+      QT_VERSION: '5.15.2'
 
     steps:
-    # الخطوة 1: تحميل الكود
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    # الخطوة 2: تثبيت Qt والمتطلبات
-    - name: Install Qt
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          qt5-qmake \
-          qtbase5-dev \
-          libgl1-mesa-dev \
-          xvfb
+      - name: Install Qt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            qt5-qmake \
+            qtbase5-dev \
+            xvfb
 
-    # الخطوة 3: البناء
-    - name: Build
-      run: |
-        qmake advanced_tic_tac_toe.pro
-        make -j$(nproc)
+      - name: Build
+        run: |
+          qmake advanced_tic_tac_toe.pro
+          make -j$(nproc)
 
-    # الخطوة 4: الاختبار (مع إغلاق تلقائي)
-    - name: Test
-      timeout-minutes: 2
-      run: |
-        xvfb-run --auto-servernum \
-          ./advanced_tic_tac_toe \
-          --ci-mode \
-          --test-timeout 10000  # 10 ثواني
+      - name: Test
+        timeout-minutes: 2
+        run: |
+          xvfb-run --auto-servernum \
+            ./advanced_tic_tac_toe \
+            --ci-mode \
+            --test-timeout 10000
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: executable
+          path: advanced_tic_tac_toe
