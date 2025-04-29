@@ -9,36 +9,69 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # حد أقصى للعملية بالكامل
 
     steps:
       # الخطوة 1: تحميل الكود المصدري
       - uses: actions/checkout@v4
 
-      # الخطوة 2: تثبيت المتطلبات الأساسية
-      - name: Install Qt and dependencies
+      # الخطوة 2: تثبيت Qt والأدوات الأساسية (مع التخزين المؤقت)
+      - name: Install Qt with Cache
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          cached: true
+          setup-python: false
+
+      - name: Install System Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            qt5-qmake \
-            qtbase5-dev \
-            g++ \
-            make \
+            build-essential \
+            libgl1-mesa-dev \
             xvfb
 
-      # الخطوة 3: بناء المشروع
+      # الخطوة 3: البناء المتوازي
       - name: Build Project
         run: |
           qmake advanced_tic_tac_toe.pro
-          make
+          make -j$(nproc)  # استخدام جميع أنوية المعالج
 
-      # الخطوة 4: اختبار التطبيق مع Xvfb (للنوافذ الرسومية)
-      - name: Run Application with Virtual Display
+      # الخطوة 4: الاختبار الآلي مع Xvfb
+      - name: Run Automated Tests
+        timeout-minutes: 3  # حد منفصل للاختبارات
         run: |
-          xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" ./advanced_tic_tac_toe
+          # إنشاء ملف log للنتائج
+          CI_LOG_FILE="ci_test_$(date +%Y%m%d_%H%M%S).log"
+          
+          # تشغيل مع وضع CI والإغلاق التلقائي بعد 20 ثانية
+          xvfb-run --auto-servernum \
+          ./advanced_tic_tac_toe \
+            --ci-mode \
+            --test-timeout 20000 2>&1 | tee $CI_LOG_FILE
 
-      # الخطوة 5: (اختياري) حزمة التطبيق للنشر
-      - name: Package Application
+          # التحقق من نجاح الاختبارات
+          if grep -q "CI test completed successfully" $CI_LOG_FILE; then
+            echo "✅ All tests passed successfully"
+          else
+            echo "❌ Tests failed or timed out"
+            exit 1
+          fi
+
+      # الخطوة 5: (اختياري) حزمة التطبيق
+      - name: Package Artifacts
+        if: success()
         run: |
           mkdir -p package
           cp advanced_tic_tac_toe package/
-          tar -czvf app-release.tar.gz package/
+          tar -czvf qt_app_build_${{ github.run_id }}.tar.gz package/
+          
+      # الخطوة 6: (اختياري) رفع النتائج
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            *.log
+            qt_app_build_*.tar.gz
