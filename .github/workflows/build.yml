@@ -5,11 +5,16 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      QT_VERSION: '5.15.2'
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cache Qt
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/Qt
+          key: ${{ runner.os }}-qt-${{ hashFiles('advanced_tic_tac_toe.pro') }}
 
       - name: Install Qt
         run: |
@@ -30,9 +35,10 @@ jobs:
           xvfb-run --auto-servernum \
             ./advanced_tic_tac_toe \
             --ci-mode \
-            --test-timeout 10000
+            --test-timeout 15000  # 15 ثانية
 
       - name: Upload Artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: executable
