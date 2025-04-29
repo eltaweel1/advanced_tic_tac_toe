@@ -1,4 +1,4 @@
-name: CI Build
+name: Qt/C++ CI
 
 on:
   push:
@@ -9,15 +9,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - name: Install Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run tests
-        run: pytest
+    # Checkout code
+    - uses: actions/checkout@v4
+    
+    # Install Qt and build dependencies
+    - name: Install Qt dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qt5-qmake qtbase5-dev g++ make
+        
+    # Build the project
+    - name: Build with qmake
+      run: |
+        qmake advanced_tic_tac_toe.pro
+        make
+        
+    # Optional: Run tests if you have them
+    - name: Run tests
+      run: |
+        ./advanced_tic_tac_toe  # Replace with your test command if available
