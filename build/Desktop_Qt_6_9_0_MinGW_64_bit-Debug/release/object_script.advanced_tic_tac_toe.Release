@@ -1,0 +1,16 @@
+release/main.o
+release/mainwindow.o
+release/loginform.o
+release/board.o
+release/gamelogic.o
+release/ai.o
+release/usermanager.o
+release/registerform.o
+release/gamesetupdialog.o
+release/historydialog.o
+release/moc_mainwindow.o
+release/moc_loginform.o
+release/moc_board.o
+release/moc_registerform.o
+release/moc_gamesetupdialog.o
+release/moc_historydialog.o
