@@ -16,7 +16,7 @@ jobs:
     - name: Set up Qt
       run: |
         sudo apt update
-        sudo apt install -y qtbase5-dev qt5-qmake g++ make
+        sudo apt install -y qt5-default qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools g++ make
 
     - name: Build Project
       run: |
