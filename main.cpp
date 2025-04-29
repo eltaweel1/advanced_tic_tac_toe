@@ -83,3 +83,5 @@ void showSetupDialog(const QString &username, UserManager *userManager, MainWind
 
     setupDialog->exec();
 }
+
+//// Just a dummy comment to trigger CI
