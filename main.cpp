@@ -9,7 +9,35 @@
 #include "historydialog.h"
 #include "usermanager.h"
 
-void showSetupDialog(const QString &username, UserManager *userManager, MainWindow *mainWindow);
+// [FIX] Move implementation BEFORE main() or put in separate file
+void showSetupDialog(const QString &username, UserManager *userManager, MainWindow *mainWindow) {
+    GameSetupDialog *setupDialog = new GameSetupDialog(username, userManager, mainWindow);
+
+    QObject::connect(setupDialog, &GameSetupDialog::setupCompleted,
+                     [mainWindow](const QString &username, char playerSymbol, QString mode, QString aiDifficulty, UserManager *userManager) {
+                         mainWindow->hide();
+                         Board *board = new Board(username, playerSymbol, mode, aiDifficulty, userManager);
+                         board->show();
+                         board->raise();
+                         board->activateWindow();
+                         QObject::connect(board, &Board::returnToMainRequested, [board, mainWindow]() {
+                             board->close();
+                             mainWindow->show();
+                             mainWindow->raise();
+                             mainWindow->activateWindow();
+                         });
+                     });
+
+    QObject::connect(setupDialog, &GameSetupDialog::backToMainRequested, [setupDialog, mainWindow]() {
+        setupDialog->close();
+        mainWindow->show();
+        mainWindow->raise();
+        mainWindow->activateWindow();
+    });
+
+    setupDialog->exec();
+}
+
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
