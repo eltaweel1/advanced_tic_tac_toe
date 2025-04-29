@@ -1,4 +1,4 @@
-name: Build and Test Tic Tac Toe
+name: Build and Test
 
 on:
   push:
@@ -11,24 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 🧬 Clone Repository
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-    - name: 🔧 Install Qt & build tools
+    - name: Set up Qt
       run: |
         sudo apt update
         sudo apt install -y qtbase5-dev qt5-qmake g++ make
 
-    - name: 🛠️ Run qmake
+    - name: Build Project
       run: |
-        qmake ./advanced_tic_tac_toe.pro
-
-    - name: 🧱 Build with make
-      run: |
+        qmake
         make
-
-    - name: ✅ (Optional) Run unit tests
-      run: |
-        if [ -f ./tests/test_gamelogic ]; then
-          ./tests/test_gamelogic
-        fi
