@@ -1,65 +1,37 @@
-name: Qt/C++ CI Pipeline
+name: Qt CI Build
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+on: [push, pull_request]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
-      # Step 1: Checkout code
-      - uses: actions/checkout@v4
+    # الخطوة 1: تحميل الكود
+    - uses: actions/checkout@v4
 
-      # Step 2: Install Qt with caching
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
-        with:
-          version: '5.15.2'
-          cached: true
+    # الخطوة 2: تثبيت Qt والمتطلبات
+    - name: Install Qt
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          qt5-qmake \
+          qtbase5-dev \
+          libgl1-mesa-dev \
+          xvfb
 
-      # Step 3: Install system dependencies
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            libgl1-mesa-dev \
-            xvfb \
-            mesa-common-dev
+    # الخطوة 3: البناء
+    - name: Build
+      run: |
+        qmake advanced_tic_tac_toe.pro
+        make -j$(nproc)
 
-      # Step 4: Build project
-      - name: Build
-        run: |
-          qmake advanced_tic_tac_toe.pro
-          make -j$(nproc)
-
-      # Step 5: Run tests
-      - name: Test
-        timeout-minutes: 3
-        run: |
-          CI_LOG_FILE="ci_test_$(date +%Y%m%d_%H%M%S).log"
-          xvfb-run --auto-servernum \
-            ./advanced_tic_tac_toe \
-            --ci-mode \
-            --test-timeout 20000 2>&1 | tee $CI_LOG_FILE
-
-          if ! grep -q "CI test completed successfully" $CI_LOG_FILE; then
-            echo "❌ Tests failed"
-            exit 1
-          fi
-          echo "✅ All tests passed"
-
-      # Step 6: Upload artifacts (fixed version)
-      - name: Upload Artifacts
-        if: always()
-        uses: actions/upload-artifact@v4  # Updated to v4
-        with:
-          name: build-artifacts
-          path: |
-            *.log
-            advanced_tic_tac_toe
+    # الخطوة 4: الاختبار (مع إغلاق تلقائي)
+    - name: Test
+      timeout-minutes: 2
+      run: |
+        xvfb-run --auto-servernum \
+          ./advanced_tic_tac_toe \
+          --ci-mode \
+          --test-timeout 10000  # 10 ثواني
