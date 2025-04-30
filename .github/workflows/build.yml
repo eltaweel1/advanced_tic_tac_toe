@@ -22,29 +22,30 @@ jobs:
           sudo apt-get install -y \
             qt5-qmake \
             qtbase5-dev \
-            xvfb
+            xvfb \
+            g++ \
+            make
 
       - name: Build
         run: |
           qmake advanced_tic_tac_toe.pro
           make -j$(nproc)
 
-      - name: Test
-        timeout-minutes: 2
+      - name: Run App for CI (Optional)
         run: |
           xvfb-run --auto-servernum \
             ./advanced_tic_tac_toe \
             --ci-mode \
-            --test-timeout 15000  # 15 ثانية
+            --test-timeout 15000
 
-      - name: Upload Artifact
+      - name: Run Unit Tests
+        run: |
+          g++ tests/test_gamelogic.cpp src/gamelogic.cpp -I./src -o test_gamelogic
+          ./test_gamelogic
+
+      - name: Upload Executable (Optional)
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: executable
           path: advanced_tic_tac_toe
-          
-              - name: Run Unit Tests
-      run: |
-        g++ tests/test_gamelogic.cpp src/gamelogic.cpp -I./src -o test_gamelogic
-        ./test_gamelogic
