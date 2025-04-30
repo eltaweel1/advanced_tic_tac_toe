@@ -19,12 +19,7 @@ jobs:
       - name: Install Qt
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            qt5-qmake \
-            qtbase5-dev \
-            xvfb \
-            g++ \
-            make
+          sudo apt-get install -y             qt5-qmake             qtbase5-dev             xvfb             g++             make
 
       - name: Build
         run: |
@@ -33,14 +28,11 @@ jobs:
 
       - name: Run App for CI (Optional)
         run: |
-          xvfb-run --auto-servernum \
-            ./advanced_tic_tac_toe \
-            --ci-mode \
-            --test-timeout 15000
+          xvfb-run --auto-servernum             ./advanced_tic_tac_toe             --ci-mode             --test-timeout 15000
 
       - name: Run Unit Tests
         run: |
-          g++ tests/test_gamelogic.cpp src/gamelogic.cpp -I./src -o test_gamelogic
+          g++ test/test_gamelogic.cpp gamelogic.cpp -o test_gamelogic
           ./test_gamelogic
 
       - name: Upload Executable (Optional)
