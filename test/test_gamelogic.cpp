@@ -1,5 +1,5 @@
 #include <cassert>
-#include "../gamelogic.cpp"
+#include "../gamelogic.h"
 
 int main() {
     GameLogic game;
