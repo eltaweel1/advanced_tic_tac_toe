@@ -1,6 +1,7 @@
-# Advanced Tic Tac Toe Game 🎮
-
 ![CI Status](https://github.com/eltaweel1/advanced_tic_tac_toe/actions/workflows/build.yml/badge.svg)
+
+
+# Advanced Tic Tac Toe Game 🎮
 
 ## 🧠 Features
 - User Login / Registration system
