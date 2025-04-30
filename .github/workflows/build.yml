@@ -43,3 +43,8 @@ jobs:
         with:
           name: executable
           path: advanced_tic_tac_toe
+          
+              - name: Run Unit Tests
+      run: |
+        g++ tests/test_gamelogic.cpp src/gamelogic.cpp -I./src -o test_gamelogic
+        ./test_gamelogic
