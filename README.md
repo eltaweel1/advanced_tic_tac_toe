@@ -1,5 +1,7 @@
 # Advanced Tic Tac Toe Game 🎮
 
+![CI Status](https://github.com/eltaweel1/advanced_tic_tac_toe/actions/workflows/build.yml/badge.svg)
+
 ## 🧠 Features
 - User Login / Registration system
 - Difficulty levels: Easy / Medium / Hard
