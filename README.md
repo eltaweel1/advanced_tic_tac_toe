@@ -21,4 +21,4 @@
 2. Build and Run
 3. Login or register and start playing!
 
-## 👨‍💻 Made by: [Your Team Members]
+## 👨‍💻 Made by: [3bad Elra7man]
