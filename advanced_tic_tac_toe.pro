@@ -18,7 +18,8 @@ SOURCES += \
     usermanager.cpp \
     registerform.cpp \
     gamesetupdialog.cpp \
-    historydialog.cpp
+    historydialog.cpp \
+    IntegrationTest.cpp
 
 HEADERS += \
     DatabaseTest.h \
@@ -32,4 +33,5 @@ HEADERS += \
     usermanager.h \
     registerform.h \
     gamesetupdialog.h \
-    historydialog.h
+    historydialog.h \
+    IntegrationTest.h
