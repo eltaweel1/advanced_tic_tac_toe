@@ -97,7 +97,7 @@ void showLoginForm(UserManager *userManager, RegisterForm *registerForm) {
     });
 }
 //---------------------------------------------------------------------------------------------------------------------------
-//GameLogic and Ai test
+// GameLogic and Ai test
 // #include <QCoreApplication>
 // #include "gamelogictest.h"
 // #include "aitest.h"
@@ -131,6 +131,49 @@ void showLoginForm(UserManager *userManager, RegisterForm *registerForm) {
 //     dbTest->runAllTests();
 //     delete dbTest;
 //     delete userManager;
+//     return 0;
+// }
+
+//-------------------------------------------------------------------------------------------------------------------------------------
+
+// #include "IntegrationTest.h"
+
+// int main() {
+//     IntegrationTest::run();
+//     return 0;
+// }
+//----------------------------------------------------------------------------------------------------------------------------------------------
+//all tests
+// #include <QCoreApplication>
+// #include <QApplication>
+
+// #include "gamelogictest.h"
+// #include "aitest.h"
+// #include "usermanager.h"
+// #include "databasetest.h"
+// #include "integrationtest.h"
+
+// int main(int argc, char *argv[]) {
+//     // Step 1: Run console-based tests (GameLogic and AI)
+//     {
+//         QCoreApplication coreApp(argc, argv);  // QCoreApplication for non-GUI tests
+//         GameLogicTest::runTests();
+//         AITest::runTests();
+//     }
+
+//     // Step 2: Run GUI-related Database test
+//     {
+//         QApplication guiApp(argc, argv);  // QApplication for GUI components (e.g., Database)
+//         UserManager *userManager = new UserManager();
+//         DatabaseTest *dbTest = new DatabaseTest(userManager);
+//         dbTest->runAllTests();
+//         delete dbTest;
+//         delete userManager;
+//     }
+
+//     // Step 3: Run Integration tests
+//     IntegrationTest::run();
+
 //     return 0;
 // }
 
