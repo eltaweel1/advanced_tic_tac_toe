@@ -13,7 +13,7 @@ public:
 
 private:
     char board[3][3];
-    int movesMade;
+    int movesMade; //counter of moves made
 };
 
 #endif // GAMELOGIC_H
