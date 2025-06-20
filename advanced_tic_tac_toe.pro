@@ -6,8 +6,8 @@ CONFIG -= app_bundle
 
 
 SOURCES += \
-    DatabaseTest.cpp \
     IntegrationTest.cpp \
+    DatabaseTest.cpp \
     aitest.cpp \
     gamelogictest.cpp \
     main.cpp \
