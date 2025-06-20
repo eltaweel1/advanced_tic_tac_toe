@@ -5,7 +5,6 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -26,9 +25,22 @@ jobs:
           g++ test/test_gamelogic.cpp gamelogic.cpp -o test_gamelogic
           ./test_gamelogic
 
-      - name: Upload executable
-        if: success()
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: tic_tac_toe_exe
-          path: ./advanced_tic_tac_toe
+          tag_name: v1.0
+          name: "v1.0 Release"
+          body: |
+            🎉 First official release of Advanced Tic Tac Toe!
+            - Includes AI with multiple difficulty levels
+            - Player vs Player & AI
+            - Login & History system
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Executable to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./advanced_tic_tac_toe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
