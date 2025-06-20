@@ -128,8 +128,8 @@ void Board::handleCellClick() {
     moveHistory.push(QString("%1,%2,%3").arg(row).arg(col).arg(currentPlayer));
 
     if (gameLogic->checkWin(currentPlayer)) {
-        statusLabel->setText(QString("%1 Wins!").arg(username));
-        saveGameResult("Win");
+        statusLabel->setText(QString("%1 Wins!").arg(currentPlayer == playerSymbol ? username : "Opponent"));
+        saveGameResult(currentPlayer == playerSymbol ? "Win" : "Loss");
         disableBoard();
         emit gameFinished();
         return;
@@ -142,6 +142,7 @@ void Board::handleCellClick() {
     }
 
     currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+    updateStatus(); // Ensure status is updated after turn change
 
     if (mode == "PvE" && currentPlayer == aiSymbol) {
         makeAIMove();
