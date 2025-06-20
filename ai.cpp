@@ -16,11 +16,9 @@ AI::AI(const QString &difficulty, char aiSymbol, char playerSymbol)
     } else {
         // Default to medium if invalid difficulty is provided
         this->difficulty = "medium";
-        // Optional: You can uncomment the line below for debugging
-        // qDebug() << "Warning: Invalid difficulty '" << difficulty << "'. Defaulting to 'medium'";
     }
 
-    if (aiSymbol == playerSymbol) {
+    if (aiSymbol == playerSymbol) { //ensures ai and player use diff symbols
         throw std::invalid_argument("AI symbol and player symbol must be different");
     }
 }
@@ -37,12 +35,12 @@ void AI::makeMove(GameLogic *gameLogic) {
     }
 
     QString normalizedDifficulty = difficulty.toLower().trimmed();
-
+//make moves based on difficulty
     if (normalizedDifficulty == "easy") {
         makeEasyMove(gameLogic);
     } else if (normalizedDifficulty == "medium") {
         makeMediumMove(gameLogic);
-    } else { // hard or any other value defaults to hard
+    } else { 
         makeHardMove(gameLogic);
     }
 }
