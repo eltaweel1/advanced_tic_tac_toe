@@ -9,7 +9,7 @@ class HistoryDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit HistoryDialog(UserManager *userManager, QWidget *parent = nullptr);
+    explicit HistoryDialog(const QString &username, UserManager *userManager, QWidget *parent = nullptr); // Added username parameter
     ~HistoryDialog();
 
 private:

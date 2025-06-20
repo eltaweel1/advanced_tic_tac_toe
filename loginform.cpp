@@ -12,7 +12,7 @@ LoginForm::LoginForm(UserManager *userManager, QWidget *parent) : QDialog(parent
     QLabel *titleLabel = new QLabel("Login", this);
     titleLabel->setAlignment(Qt::AlignCenter);
     QFont font = titleLabel->font();
-    font.setPointSize(16);
+    font.setPointSize(20); // Increased font size
     font.setBold(true);
     titleLabel->setFont(font);
     layout->addWidget(titleLabel);
@@ -20,6 +20,7 @@ LoginForm::LoginForm(UserManager *userManager, QWidget *parent) : QDialog(parent
     QHBoxLayout *usernameLayout = new QHBoxLayout();
     QLabel *usernameLabel = new QLabel("Username:", this);
     usernameEdit = new QLineEdit(this);
+    usernameEdit->setMinimumHeight(40); // Larger input field
     usernameLayout->addWidget(usernameLabel);
     usernameLayout->addWidget(usernameEdit);
     layout->addLayout(usernameLayout);
@@ -28,13 +29,16 @@ LoginForm::LoginForm(UserManager *userManager, QWidget *parent) : QDialog(parent
     QLabel *passwordLabel = new QLabel("Password:", this);
     passwordEdit = new QLineEdit(this);
     passwordEdit->setEchoMode(QLineEdit::Password);
+    passwordEdit->setMinimumHeight(40); // Larger input field
     passwordLayout->addWidget(passwordLabel);
     passwordLayout->addWidget(passwordEdit);
     layout->addLayout(passwordLayout);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *loginButton = new QPushButton("Login", this);
+    loginButton->setMinimumHeight(50); // Larger button
     QPushButton *registerButton = new QPushButton("Register", this);
+    registerButton->setMinimumHeight(50); // Larger button
     buttonLayout->addWidget(loginButton);
     buttonLayout->addWidget(registerButton);
     layout->addLayout(buttonLayout);
@@ -43,12 +47,16 @@ LoginForm::LoginForm(UserManager *userManager, QWidget *parent) : QDialog(parent
     connect(registerButton, &QPushButton::clicked, this, &LoginForm::handleRegister);
 
     setStyleSheet(
-        "QDialog { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1565C0, stop:1 #42A5F5); }"
-        "QLabel { color: #FFFFFF; font-size: 14px; }"
-        "QLineEdit { background: #FFFFFF; color: #212121; border-radius: 5px; padding: 5px; }"
-        "QPushButton { background: #42A5F5; color: #212121; border-radius: 5px; padding: 8px; font-size: 14px; }"
-        "QPushButton:hover { background: #64B5F6; }"
+        "QDialog { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #00695C, stop:1 #4DD0E1); }"
+        "QLabel { color: #FFFFFF; font-size: 18px; text-shadow: 1px 1px 2px #000000; }"
+        "QLineEdit { background: #FFFFFF; color: #1A237E; border-radius: 8px; padding: 8px; border: 2px solid #4FC3F7; }"
+        "QLineEdit:focus { border: 2px solid #FF6E40; }"
+        "QPushButton { background: #FF6E40; color: #1A237E; border-radius: 8px; padding: 12px; font-size: 18px; font-weight: bold; }"
+        "QPushButton:hover { background: #FF8A65; transform: scale(1.05); }"
+        "QPushButton:disabled { background: #CFD8DC; color: #78909C; }"
         );
+
+    setMinimumSize(500, 400); // Increased window size
 }
 
 LoginForm::~LoginForm() {}

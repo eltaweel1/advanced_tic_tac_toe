@@ -5,14 +5,14 @@
 #include <QList>
 #include <QFile>
 #include <QTextStream>
-#include <QDateTime>  // Added for QDateTime
+#include <QDateTime>
 
 struct Game {
     QString username;
     QString mode;
     QString result;
-    QString boardState;  // Added to store the final board state
-    QDateTime dateTime;  // Added to store the date and time of the game
+    QString boardState;
+    QDateTime dateTime;
 };
 
 class UserManager {
@@ -20,8 +20,11 @@ public:
     UserManager();
     bool registerUser(const QString &username, const QString &password);
     bool loginUser(const QString &username, const QString &password);
+    bool validateUser(const QString &username, const QString &password);
+    bool deleteUser(const QString &username);
     void addGameHistory(const QString &username, const QString &mode, const QString &result, const QString &boardState, const QDateTime &dateTime);
     QList<Game> getGameHistory() const;
+    void clearUsers();
 
 private:
     struct User {
@@ -30,6 +33,7 @@ private:
     };
     QList<User> users;
     QList<Game> gameHistory;
+    void saveUsersToFile();
 };
 
 #endif // USERMANAGER_H

@@ -1,42 +1,23 @@
 #include "usermanager.h"
 
 UserManager::UserManager() {
-    QFile file("users.txt");
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&file);
-        while (!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList parts = line.split(",");
-            if (parts.size() == 2) {
-                users.append({parts[0], parts[1]});
-            }
-        }
-        file.close();
+    users.clear();
+    gameHistory.clear();
+    QFile userFile("users.txt");
+    if (userFile.exists()) {
+        userFile.remove();
     }
-
     QFile historyFile("history.txt");
-    if (historyFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&historyFile);
-        while (!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList parts = line.split(",");
-            if (parts.size() == 5) {
-                Game game;
-                game.username = parts[0];
-                game.mode = parts[1];
-                game.result = parts[2];
-                game.boardState = parts[3];
-                game.dateTime = QDateTime::fromString(parts[4], "yyyy-MM-dd HH:mm:ss");
-                gameHistory.append(game);
-            }
-        }
-        historyFile.close();
+    if (historyFile.exists()) {
+        historyFile.remove();
     }
 }
 
 bool UserManager::registerUser(const QString &username, const QString &password) {
     for (const auto &user : users) {
-        if (user.username == username) return false;
+        if (user.username == username) {
+            return false;
+        }
     }
     users.append({username, password});
     QFile file("users.txt");
@@ -56,6 +37,37 @@ bool UserManager::loginUser(const QString &username, const QString &password) {
     return false;
 }
 
+bool UserManager::validateUser(const QString &username, const QString &password) {
+    return loginUser(username, password);
+}
+
+bool UserManager::deleteUser(const QString &username) {
+    int index = -1;
+    for (int i = 0; i < users.size(); ++i) {
+        if (users[i].username == username) {
+            index = i;
+            break;
+        }
+    }
+    if (index == -1) {
+        return false;
+    }
+    users.removeAt(index);
+    saveUsersToFile();
+    return true;
+}
+
+void UserManager::saveUsersToFile() {
+    QFile file("users.txt");
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&file);
+        for (const auto &user : users) {
+            out << user.username << "," << user.password << "\n";
+        }
+        file.close();
+    }
+}
+
 void UserManager::addGameHistory(const QString &username, const QString &mode, const QString &result, const QString &boardState, const QDateTime &dateTime) {
     gameHistory.append({username, mode, result, boardState, dateTime});
     QFile file("history.txt");
@@ -68,4 +80,8 @@ void UserManager::addGameHistory(const QString &username, const QString &mode, c
 
 QList<Game> UserManager::getGameHistory() const {
     return gameHistory;
+}
+
+void UserManager::clearUsers() {
+    users.clear();
 }

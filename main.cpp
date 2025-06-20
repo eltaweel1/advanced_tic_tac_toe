@@ -1,6 +1,4 @@
 #include <QApplication>
-#include <QTimer>
-#include <QDebug>
 #include "loginform.h"
 #include "registerform.h"
 #include "mainwindow.h"
@@ -8,6 +6,19 @@
 #include "board.h"
 #include "historydialog.h"
 #include "usermanager.h"
+
+void showSetupDialog(const QString &username, UserManager *userManager, MainWindow *mainWindow);
+void showLoginForm(UserManager *userManager, RegisterForm *registerForm); // Simplified signature
+
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+
+    UserManager *userManager = new UserManager();
+    RegisterForm *registerForm = new RegisterForm(userManager);
+    showLoginForm(userManager, registerForm); // Start with login form
+
+    return app.exec();
+}
 
 void showSetupDialog(const QString &username, UserManager *userManager, MainWindow *mainWindow) {
     GameSetupDialog *setupDialog = new GameSetupDialog(username, userManager, mainWindow);
@@ -21,6 +32,7 @@ void showSetupDialog(const QString &username, UserManager *userManager, MainWind
                          board->activateWindow();
                          QObject::connect(board, &Board::returnToMainRequested, [board, mainWindow]() {
                              board->close();
+                             board->deleteLater();
                              mainWindow->show();
                              mainWindow->raise();
                              mainWindow->activateWindow();
@@ -29,6 +41,7 @@ void showSetupDialog(const QString &username, UserManager *userManager, MainWind
 
     QObject::connect(setupDialog, &GameSetupDialog::backToMainRequested, [setupDialog, mainWindow]() {
         setupDialog->close();
+        setupDialog->deleteLater();
         mainWindow->show();
         mainWindow->raise();
         mainWindow->activateWindow();
@@ -37,71 +50,34 @@ void showSetupDialog(const QString &username, UserManager *userManager, MainWind
     setupDialog->exec();
 }
 
-int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
-
-    // [1] وضع الاختبار التلقائي لـ CI
-    bool isCIMode = app.arguments().contains("--ci-mode");
-    int testTimeout = 5000; // 5 ثواني افتراضياً
-	
-	if (app.arguments().contains("--ci-mode")) {
-    int timeout = 5000; // افتراضي 5 ثوان
-    if (app.arguments().contains("--test-timeout")) {
-        timeout = app.arguments().at(app.arguments().indexOf("--test-timeout") + 1).toInt();
-    }
-    
-    QTimer::singleShot(timeout, [&app](){
-        qDebug() << "✅ CI Tests completed successfully";
-        app.quit();
-    });
-    
-    qDebug() << "🔧 Running in CI mode (timeout:" << timeout << "ms)";
-    return app.exec();
-}
-
-    if (isCIMode) {
-        qDebug() << "Running in CI test mode";
-        if (app.arguments().contains("--test-timeout")) {
-            testTimeout = app.arguments().at(
-                app.arguments().indexOf("--test-timeout") + 1).toInt();
-        }
-    }
-
-    UserManager *userManager = new UserManager();
+void showLoginForm(UserManager *userManager, RegisterForm *registerForm) {
     LoginForm *loginForm = new LoginForm(userManager);
-    RegisterForm *registerForm = new RegisterForm(userManager);
-    MainWindow *mainWindow = nullptr;
-
-    // [2] إغلاق تلقائي في وضع CI
-    if (isCIMode) {
-        QTimer::singleShot(testTimeout, [&app, userManager, loginForm](){
-            qDebug() << "CI test completed successfully";
-            delete userManager;
-            delete loginForm;
-            app.quit();
-        });
-        
-        // اختبار سريع دون واجهة مستخدم
-        qDebug() << "Running automated tests...";
-        return app.exec();
-    }
-
-    // [3] التنفيذ العادي (غير وضع CI)
     loginForm->show();
 
-    QObject::connect(loginForm, &LoginForm::loginRequested, [&mainWindow, loginForm, userManager](const QString &username) {
+    QObject::connect(loginForm, &LoginForm::loginRequested, [loginForm, userManager, registerForm](const QString &username) {
         loginForm->hide();
+        loginForm->close();
         loginForm->deleteLater();
-        mainWindow = new MainWindow(username, userManager);
+
+        MainWindow *mainWindow = new MainWindow(username, userManager);
         mainWindow->show();
+        mainWindow->raise();
+        mainWindow->activateWindow();
 
         QObject::connect(mainWindow, &MainWindow::newGameRequested, [userManager, mainWindow](const QString &username) {
             showSetupDialog(username, userManager, mainWindow);
         });
 
-        QObject::connect(mainWindow, &MainWindow::viewHistoryRequested, [userManager]() {
-            HistoryDialog *historyDialog = new HistoryDialog(userManager);
+        QObject::connect(mainWindow, &MainWindow::viewHistoryRequested, [userManager](const QString &username) {
+            HistoryDialog *historyDialog = new HistoryDialog(username, userManager);
             historyDialog->exec();
+        });
+
+        QObject::connect(mainWindow, &MainWindow::logoutRequested, [mainWindow, userManager, registerForm]() {
+            mainWindow->hide();
+            mainWindow->close();
+            mainWindow->deleteLater();
+            showLoginForm(userManager, registerForm);
         });
     });
 
@@ -119,6 +95,41 @@ int main(int argc, char *argv[]) {
         registerForm->hide();
         loginForm->show();
     });
-
-    return app.exec();
 }
+//---------------------------------------------------------------------------------------------------------------------------
+//GameLogic and Ai test
+// #include <QCoreApplication>
+// #include "gamelogictest.h"
+// #include "aitest.h"
+
+// int main(int argc, char *argv[])
+// {
+//     QCoreApplication a(argc, argv);
+
+//     GameLogicTest::runTests();
+//     AITest::runTests();
+
+//     return 0; // Not using a.exec() since it's a console-based test
+// }
+
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------
+//DataBase Test
+
+// #include <QApplication>
+// #include "usermanager.h"
+// #include "DatabaseTest.h"
+
+
+
+// int main(int argc, char *argv[]) {
+//     QApplication app(argc, argv);
+//     UserManager *userManager = new UserManager();
+//     DatabaseTest *dbTest = new DatabaseTest(userManager);
+//     dbTest->runAllTests();
+//     delete dbTest;
+//     delete userManager;
+//     return 0;
+//  }

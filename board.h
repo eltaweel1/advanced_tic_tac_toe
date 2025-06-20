@@ -2,6 +2,7 @@
 #define BOARD_H
 
 #include <QWidget>
+#include <stack> // Added for std::stack
 #include <QStringList>
 #include <QLabel>
 #include <QPushButton>
@@ -53,8 +54,7 @@ private:
     QPushButton *redoButton;
     QPushButton *restartButton;
     QPushButton *returnButton;
-    QStringList moveHistory;
-    int historyIndex;
+    std::stack<QString> moveHistory; // Replaced QStringList with stack
     bool animationsEnabled;
 };
 

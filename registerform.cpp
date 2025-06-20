@@ -8,22 +8,26 @@ RegisterForm::RegisterForm(UserManager *userManager, QWidget *parent) : QWidget(
     QLabel *titleLabel = new QLabel("Register", this);
     titleLabel->setAlignment(Qt::AlignCenter);
     QFont font = titleLabel->font();
-    font.setPointSize(18);
+    font.setPointSize(20); // Increased font size
     font.setBold(true);
     titleLabel->setFont(font);
     layout->addWidget(titleLabel);
 
     usernameEdit = new QLineEdit(this);
     usernameEdit->setPlaceholderText("Choose a username");
+    usernameEdit->setMinimumHeight(40); // Larger input field
     layout->addWidget(usernameEdit);
 
     passwordEdit = new QLineEdit(this);
     passwordEdit->setPlaceholderText("Choose a password");
     passwordEdit->setEchoMode(QLineEdit::Password);
+    passwordEdit->setMinimumHeight(40); // Larger input field
     layout->addWidget(passwordEdit);
 
     registerButton = new QPushButton("Register", this);
+    registerButton->setMinimumHeight(50); // Larger button
     backButton = new QPushButton("Back to Login", this);
+    backButton->setMinimumHeight(50); // Larger button
     layout->addWidget(registerButton);
     layout->addWidget(backButton);
 
@@ -31,13 +35,16 @@ RegisterForm::RegisterForm(UserManager *userManager, QWidget *parent) : QWidget(
     connect(backButton, &QPushButton::clicked, this, &RegisterForm::handleBack);
 
     setStyleSheet(
-        "QWidget { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1565C0, stop:1 #42A5F5); }"
-        "QLabel { color: #FFFFFF; font-size: 16px; }" // White text for labels
-        "QLineEdit { background: #FFFFFF; border-radius: 5px; padding: 5px; color: #212121; border: 1px solid #90CAF9; }" // Dark text for input fields
-        "QPushButton { background: #42A5F5; color: #212121; border-radius: 5px; padding: 8px; font-size: 14px; }" // Dark text for buttons
-        "QPushButton:hover { background: #64B5F6; }"
-        "QPushButton:disabled { background: #B0BEC5; }"
+        "QWidget { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #00695C, stop:1 #4DD0E1); }"
+        "QLabel { color: #FFFFFF; font-size: 18px; text-shadow: 1px 1px 2px #000000; }"
+        "QLineEdit { background: #FFFFFF; border-radius: 8px; padding: 8px; color: #1A237E; border: 2px solid #4FC3F7; }"
+        "QLineEdit:focus { border: 2px solid #FF6E40; }"
+        "QPushButton { background: #FF6E40; color: #1A237E; border-radius: 8px; padding: 12px; font-size: 18px; font-weight: bold; }"
+        "QPushButton:hover { background: #FF8A65; transform: scale(1.05); }"
+        "QPushButton:disabled { background: #CFD8DC; color: #78909C; }"
         );
+
+    setMinimumSize(500, 400); // Increased window size
 }
 
 RegisterForm::~RegisterForm() {}

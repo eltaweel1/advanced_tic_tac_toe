@@ -17,13 +17,13 @@ Board::Board(const QString &username, char playerSymbol, QString mode, QString a
     gameLogic(new GameLogic()),
     ai(nullptr),
     aiDifficulty(aiDifficulty),
-    historyIndex(-1),
-    animationsEnabled(true),
     statusLabel(nullptr),
     undoButton(nullptr),
     redoButton(nullptr),
     restartButton(nullptr),
-    returnButton(nullptr) {
+    returnButton(nullptr),
+    animationsEnabled(true)
+{
     // Initialize the cells array
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
@@ -40,18 +40,22 @@ Board::Board(const QString &username, char playerSymbol, QString mode, QString a
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
     // Status label
-    statusLabel = new QLabel(QString("Player %1's Turn").arg(currentPlayer), this);
+    statusLabel = new QLabel(QString("%1's Turn").arg(username), this); // Initial status with username
     statusLabel->setAlignment(Qt::AlignCenter);
+    QFont statusFont = statusLabel->font();
+    statusFont.setPointSize(20);
+    statusLabel->setFont(statusFont);
     mainLayout->addWidget(statusLabel);
 
     // 3x3 game board
     QGridLayout *gridLayout = new QGridLayout();
+    gridLayout->setSpacing(10);
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             cells[i][j] = new QPushButton(this);
-            cells[i][j]->setFixedSize(60, 60);
+            cells[i][j]->setFixedSize(100, 100);
             QFont font = cells[i][j]->font();
-            font.setPointSize(20);
+            font.setPointSize(24);
             cells[i][j]->setFont(font);
             connect(cells[i][j], &QPushButton::clicked, this, &Board::handleCellClick);
             gridLayout->addWidget(cells[i][j], i, j);
@@ -62,9 +66,13 @@ Board::Board(const QString &username, char playerSymbol, QString mode, QString a
     // Control buttons
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     undoButton = new QPushButton("Undo", this);
+    undoButton->setMinimumHeight(50);
     redoButton = new QPushButton("Redo", this);
+    redoButton->setMinimumHeight(50);
     restartButton = new QPushButton("Restart", this);
+    restartButton->setMinimumHeight(50);
     returnButton = new QPushButton("Return to Main Menu", this);
+    returnButton->setMinimumHeight(50);
     buttonLayout->addWidget(undoButton);
     buttonLayout->addWidget(redoButton);
     buttonLayout->addWidget(restartButton);
@@ -80,13 +88,16 @@ Board::Board(const QString &username, char playerSymbol, QString mode, QString a
     // Apply styling
     setWindowTitle("Tic Tac Toe - Game");
     setStyleSheet(
-        "QWidget { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1565C0, stop:1 #42A5F5); }"
-        "QLabel { color: #FFFFFF; font-size: 16px; }"
-        "QPushButton { background: #42A5F5; color: #212121; border-radius: 5px; padding: 8px; font-size: 14px; }"
-        "QPushButton:hover { background: #64B5F6; }"
-        "QPushButton:disabled { background: #B0BEC5; }"
-        "QPushButton[flat='true'] { background: transparent; border: 1px solid #BBDEFB; }"
+        "QWidget { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #00695C, stop:1 #4DD0E1); }"
+        "QLabel { color: #FFFFFF; font-size: 20px; text-shadow: 1px 1px 2px #000000; }"
+        "QPushButton { background: #FF6E40; color: #1A237E; border-radius: 8px; padding: 12px; font-size: 18px; font-weight: bold; }"
+        "QPushButton:hover { background: #FF8A65; transform: scale(1.05); }"
+        "QPushButton:disabled { background: #CFD8DC; color: #78909C; }"
+        "QPushButton[flat='true'] { background: #FFFFFF; color: #1A237E; border: 2px solid #4FC3F7; border-radius: 8px; box-shadow: 2px 2px 4px #00000033; }"
+        "QPushButton[flat='true']:hover { background: #B3E5FC; }"
         );
+
+    resize(600, 700);
 
     // AI makes the first move if it's their turn
     if (mode == "PvE" && currentPlayer == aiSymbol) {
@@ -100,7 +111,6 @@ Board::~Board() {
 }
 
 void Board::handleCellClick() {
-    // Identify the clicked cell
     QPushButton *button = qobject_cast<QPushButton*>(sender());
     int row = -1, col = -1;
     for (int i = 0; i < 3; ++i) {
@@ -113,23 +123,17 @@ void Board::handleCellClick() {
         }
     }
 
-    // Make the move if valid
     if (!gameLogic->makeMove(row, col, currentPlayer)) return;
 
-    // Update UI and animate
     button->setText(QString(currentPlayer));
     if (animationsEnabled) {
         animateCell(button);
     }
 
-    // Update move history
-    moveHistory = moveHistory.mid(0, historyIndex + 1);
-    moveHistory.append(QString("%1,%2,%3").arg(row).arg(col).arg(currentPlayer));
-    historyIndex++;
+    moveHistory.push(QString("%1,%2,%3").arg(row).arg(col).arg(currentPlayer));
 
-    // Check for game end
     if (gameLogic->checkWin(currentPlayer)) {
-        statusLabel->setText(QString("Player %1 Wins!").arg(currentPlayer));
+        statusLabel->setText(QString("%1 Wins!").arg(username));
         saveGameResult("Win");
         disableBoard();
         emit gameFinished();
@@ -142,55 +146,35 @@ void Board::handleCellClick() {
         return;
     }
 
-    // Switch players
     currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
     updateStatus();
 
-    // AI's turn in PvE mode
     if (mode == "PvE" && currentPlayer == aiSymbol) {
         makeAIMove();
     }
 }
 
 void Board::makeAIMove() {
-    // AI makes a move
     ai->makeMove(gameLogic);
 
-    // Update the board UI
     int aiRow = -1, aiCol = -1;
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             char cell = gameLogic->getCell(i, j);
             cells[i][j]->setText(cell == ' ' ? "" : QString(cell));
-            // Find the AI's move by checking the last move in history
-            if (!moveHistory.isEmpty()) {
-                QString lastMove = moveHistory.last();
-                QStringList parts = lastMove.split(",");
-                int lastRow = parts[0].toInt();
-                int lastCol = parts[1].toInt();
-                if (i == lastRow && j == lastCol && cell == aiSymbol) {
-                    aiRow = i;
-                    aiCol = j;
-                }
-            } else if (cell == aiSymbol) {
+            if (cell == aiSymbol) {
                 aiRow = i;
                 aiCol = j;
             }
         }
     }
 
-    // Animate AI's move
     if (animationsEnabled && aiRow != -1 && aiCol != -1) {
         animateCell(cells[aiRow][aiCol]);
     }
 
-    // Record AI's move (if not already recorded)
-    if (aiRow != -1 && aiCol != -1) {
-        moveHistory.append(QString("%1,%2,%3").arg(aiRow).arg(aiCol).arg(aiSymbol));
-        historyIndex++;
-    }
+    moveHistory.push(QString("%1,%2,%3").arg(aiRow).arg(aiCol).arg(aiSymbol));
 
-    // Check for game end
     if (gameLogic->checkWin(aiSymbol)) {
         statusLabel->setText("AI Wins!");
         saveGameResult("Loss");
@@ -205,7 +189,6 @@ void Board::makeAIMove() {
         return;
     }
 
-    // Switch back to player
     currentPlayer = playerSymbol;
     updateStatus();
 }
@@ -235,40 +218,32 @@ void Board::disableBoard() {
 }
 
 void Board::updateStatus() {
-    statusLabel->setText(QString("Player %1's Turn").arg(currentPlayer));
-    undoButton->setEnabled(historyIndex >= 0);
-    redoButton->setEnabled(historyIndex < moveHistory.size() - 1);
+    if (mode == "PvP") {
+        // In PvP, alternate between username and "Opponent" (assuming single user for now)
+        statusLabel->setText(QString("%1's Turn").arg(currentPlayer == playerSymbol ? username : "Opponent"));
+    } else if (mode == "PvE") {
+        // In PvE, show username for player's turn, AI for AI's turn
+        statusLabel->setText(QString("%1's Turn").arg(currentPlayer == playerSymbol ? username : "AI"));
+    }
+    undoButton->setEnabled(!moveHistory.empty()); // Enable if stack is not empty
+    redoButton->setEnabled(false); // Disable redo for now with single stack
 }
 
 void Board::handleUndo() {
-    if (historyIndex < 0) return;
-
-    QString move = moveHistory[historyIndex];
+    if (moveHistory.empty()) return;
+    QString move = moveHistory.top();
+    moveHistory.pop();
     QStringList parts = move.split(",");
-    int row = parts[0].toInt();
-    int col = parts[1].toInt();
-
+    int row = parts[0].toInt(), col = parts[1].toInt();
     gameLogic->makeMove(row, col, ' ');
     cells[row][col]->setText("");
-    historyIndex--;
     currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
     updateStatus();
 }
 
 void Board::handleRedo() {
-    if (historyIndex >= moveHistory.size() - 1) return;
-
-    historyIndex++;
-    QString move = moveHistory[historyIndex];
-    QStringList parts = move.split(",");
-    int row = parts[0].toInt();
-    int col = parts[1].toInt();
-    char symbol = parts[2].toUtf8()[0];
-
-    gameLogic->makeMove(row, col, symbol);
-    cells[row][col]->setText(QString(symbol));
-    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-    updateStatus();
+    // Redo not implemented with single stack; consider dual-stack or vector approach
+    // For now, disable redo functionality
 }
 
 void Board::handleRestart() {
@@ -280,8 +255,7 @@ void Board::handleRestart() {
         }
     }
     currentPlayer = 'X';
-    moveHistory.clear();
-    historyIndex = -1;
+    while (!moveHistory.empty()) moveHistory.pop(); // Clear stack
     updateStatus();
 
     if (mode == "PvE" && currentPlayer == aiSymbol) {

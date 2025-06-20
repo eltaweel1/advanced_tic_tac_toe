@@ -15,12 +15,14 @@ public:
 
 signals:
     void newGameRequested(const QString &username);
-    void viewHistoryRequested();
+    void viewHistoryRequested(const QString &username);
+    void logoutRequested(); // Added logout signal
 
 private slots:
     void handleNewGame();
     void handleViewHistory();
     void handleExit();
+    void handleLogout(); // Added logout slot
 
 private:
     QString username;
