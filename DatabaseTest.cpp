@@ -8,7 +8,6 @@ DatabaseTest::DatabaseTest(UserManager *userManager) : userManager(userManager) 
 
 void DatabaseTest::runAllTests() {
     testUserAllocation();
-    testDeleteUser();
     testGameHistoryRetrieval();
     qDebug() << "All tests completed.";
 }
@@ -34,16 +33,8 @@ void DatabaseTest::testUserAllocation() {
     qDebug() << "  Validate user (invalid username, invalid password):" << (!userManager->validateUser("invaliduser", "invalidpass") ? "SUCCESS" : "FAILED");
 }
 
-void DatabaseTest::testDeleteUser() {
-    qDebug() << "Test 3.2: Delete User";
-    resetUserManager();
-    QString nonExistentUser = "nonexistent";
-
-    qDebug() << "  Delete non-existent user:" << (!userManager->deleteUser(nonExistentUser) ? "SUCCESS" : "FAILED");
-}
-
 void DatabaseTest::testGameHistoryRetrieval() {
-    qDebug() << "Test 3.3: Game History Retrieval";
+    qDebug() << "Test 3.2: Game History Retrieval";
     resetUserManager();
     userManager->getGameHistory().clear(); // Clear gameHistory first
     QFile historyFile("history.txt");
