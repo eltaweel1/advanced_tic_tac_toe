@@ -24,6 +24,7 @@ jobs:
       - name: Build
         run: |
           qmake advanced_tic_tac_toe.pro
+          make qmake_all
           make -j$(nproc)
 
       - name: Run App for CI (Optional)
