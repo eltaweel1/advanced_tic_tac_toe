@@ -9,7 +9,7 @@ public:
     bool checkDraw() const;
     char getCell(int row, int col) const;
     void reset();
-    void undoMove(int row, int col);  // للسماح للـ AI بتجريب الحركات
+    void undoMove(int row, int col);  
 
 private:
     char board[3][3];
