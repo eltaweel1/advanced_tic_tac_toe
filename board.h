@@ -2,7 +2,7 @@
 #define BOARD_H
 
 #include <QWidget>
-#include <stack> // Added for std::stack
+#include <stack>
 #include <QStringList>
 #include <QLabel>
 #include <QPushButton>
@@ -30,7 +30,6 @@ private slots:
     void makeAIMove();
     void updateStatus();
     void handleUndo();
-    void handleRedo();
     void handleRestart();
     void handleReturn();
     void animateCell(QPushButton *button);
@@ -51,10 +50,9 @@ private:
     QPushButton *cells[3][3];
     QLabel *statusLabel;
     QPushButton *undoButton;
-    QPushButton *redoButton;
     QPushButton *restartButton;
     QPushButton *returnButton;
-    std::stack<QString> moveHistory; // Replaced QStringList with stack
+    std::stack<QString> moveHistory;
     bool animationsEnabled;
 };
 
