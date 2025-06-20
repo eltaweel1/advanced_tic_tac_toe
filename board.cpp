@@ -19,7 +19,6 @@ Board::Board(const QString &username, char playerSymbol, QString mode, QString a
     aiDifficulty(aiDifficulty),
     statusLabel(nullptr),
     undoButton(nullptr),
-    redoButton(nullptr),
     restartButton(nullptr),
     returnButton(nullptr),
     animationsEnabled(true)
@@ -40,7 +39,7 @@ Board::Board(const QString &username, char playerSymbol, QString mode, QString a
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
     // Status label
-    statusLabel = new QLabel(QString("%1's Turn").arg(username), this); // Initial status with username
+    statusLabel = new QLabel(QString("%1's Turn").arg(username), this);
     statusLabel->setAlignment(Qt::AlignCenter);
     QFont statusFont = statusLabel->font();
     statusFont.setPointSize(20);
@@ -67,21 +66,17 @@ Board::Board(const QString &username, char playerSymbol, QString mode, QString a
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     undoButton = new QPushButton("Undo", this);
     undoButton->setMinimumHeight(50);
-    redoButton = new QPushButton("Redo", this);
-    redoButton->setMinimumHeight(50);
     restartButton = new QPushButton("Restart", this);
     restartButton->setMinimumHeight(50);
     returnButton = new QPushButton("Return to Main Menu", this);
     returnButton->setMinimumHeight(50);
     buttonLayout->addWidget(undoButton);
-    buttonLayout->addWidget(redoButton);
     buttonLayout->addWidget(restartButton);
     buttonLayout->addWidget(returnButton);
     mainLayout->addLayout(buttonLayout);
 
     // Connect control buttons
     connect(undoButton, &QPushButton::clicked, this, &Board::handleUndo);
-    connect(redoButton, &QPushButton::clicked, this, &Board::handleRedo);
     connect(restartButton, &QPushButton::clicked, this, &Board::handleRestart);
     connect(returnButton, &QPushButton::clicked, this, &Board::handleReturn);
 
@@ -147,7 +142,6 @@ void Board::handleCellClick() {
     }
 
     currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-    updateStatus();
 
     if (mode == "PvE" && currentPlayer == aiSymbol) {
         makeAIMove();
@@ -219,14 +213,11 @@ void Board::disableBoard() {
 
 void Board::updateStatus() {
     if (mode == "PvP") {
-        // In PvP, alternate between username and "Opponent" (assuming single user for now)
         statusLabel->setText(QString("%1's Turn").arg(currentPlayer == playerSymbol ? username : "Opponent"));
     } else if (mode == "PvE") {
-        // In PvE, show username for player's turn, AI for AI's turn
         statusLabel->setText(QString("%1's Turn").arg(currentPlayer == playerSymbol ? username : "AI"));
     }
-    undoButton->setEnabled(!moveHistory.empty()); // Enable if stack is not empty
-    redoButton->setEnabled(false); // Disable redo for now with single stack
+    undoButton->setEnabled(!moveHistory.empty());
 }
 
 void Board::handleUndo() {
@@ -241,11 +232,6 @@ void Board::handleUndo() {
     updateStatus();
 }
 
-void Board::handleRedo() {
-    // Redo not implemented with single stack; consider dual-stack or vector approach
-    // For now, disable redo functionality
-}
-
 void Board::handleRestart() {
     gameLogic->reset();
     for (int i = 0; i < 3; ++i) {
@@ -255,7 +241,7 @@ void Board::handleRestart() {
         }
     }
     currentPlayer = 'X';
-    while (!moveHistory.empty()) moveHistory.pop(); // Clear stack
+    while (!moveHistory.empty()) moveHistory.pop();
     updateStatus();
 
     if (mode == "PvE" && currentPlayer == aiSymbol) {
