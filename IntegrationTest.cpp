@@ -1,5 +1,5 @@
 #include "IntegrationTest.h"
-#include "../gamelogic.h"
+#include "gamelogic.h"
 #include <iostream>
 #include <cassert>
 
