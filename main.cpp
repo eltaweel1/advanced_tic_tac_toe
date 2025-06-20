@@ -8,14 +8,13 @@
 #include "usermanager.h"
 
 void showSetupDialog(const QString &username, UserManager *userManager, MainWindow *mainWindow);
-void showLoginForm(UserManager *userManager, RegisterForm *registerForm); // Simplified signature
+void showLoginForm(UserManager *userManager);
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     UserManager *userManager = new UserManager();
-    RegisterForm *registerForm = new RegisterForm(userManager);
-    showLoginForm(userManager, registerForm); // Start with login form
+    showLoginForm(userManager); // Start with login form
 
     return app.exec();
 }
@@ -50,11 +49,11 @@ void showSetupDialog(const QString &username, UserManager *userManager, MainWind
     setupDialog->exec();
 }
 
-void showLoginForm(UserManager *userManager, RegisterForm *registerForm) {
+void showLoginForm(UserManager *userManager) {
     LoginForm *loginForm = new LoginForm(userManager);
     loginForm->show();
 
-    QObject::connect(loginForm, &LoginForm::loginRequested, [loginForm, userManager, registerForm](const QString &username) {
+    QObject::connect(loginForm, &LoginForm::loginRequested, [loginForm, userManager](const QString &username) {
         loginForm->hide();
         loginForm->close();
         loginForm->deleteLater();
@@ -73,27 +72,32 @@ void showLoginForm(UserManager *userManager, RegisterForm *registerForm) {
             historyDialog->exec();
         });
 
-        QObject::connect(mainWindow, &MainWindow::logoutRequested, [mainWindow, userManager, registerForm]() {
+        QObject::connect(mainWindow, &MainWindow::logoutRequested, [mainWindow, userManager]() {
             mainWindow->hide();
             mainWindow->close();
             mainWindow->deleteLater();
-            showLoginForm(userManager, registerForm);
+            showLoginForm(userManager);
         });
     });
 
-    QObject::connect(loginForm, &LoginForm::registerRequested, [loginForm, registerForm]() {
+    QObject::connect(loginForm, &LoginForm::registerRequested, [loginForm, userManager]() {
         loginForm->hide();
+        RegisterForm *registerForm = new RegisterForm(userManager); // Create new RegisterForm
         registerForm->show();
-    });
 
-    QObject::connect(registerForm, &RegisterForm::registrationCompleted, [registerForm, loginForm]() {
-        registerForm->hide();
-        loginForm->show();
-    });
+        QObject::connect(registerForm, &RegisterForm::registrationCompleted, [registerForm, loginForm]() {
+            registerForm->hide();
+            registerForm->close();
+            registerForm->deleteLater();
+            loginForm->show();
+        });
 
-    QObject::connect(registerForm, &RegisterForm::backToLoginRequested, [registerForm, loginForm]() {
-        registerForm->hide();
-        loginForm->show();
+        QObject::connect(registerForm, &RegisterForm::backToLoginRequested, [registerForm, loginForm]() {
+            registerForm->hide();
+            registerForm->close();
+            registerForm->deleteLater();
+            loginForm->show();
+        });
     });
 }
 //---------------------------------------------------------------------------------------------------------------------------
