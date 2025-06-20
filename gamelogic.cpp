@@ -1,13 +1,13 @@
 #include "gamelogic.h"
 
 GameLogic::GameLogic() {
-    reset();
+    reset(); //Restart The Game
 }
 
-bool GameLogic::makeMove(int row, int col, char symbol) {
-    if (board[row][col] == ' ') {
+bool GameLogic::makeMove(int row, int col, char symbol) { 
+    if (board[row][col] == ' ') { //Check if cell the cell is empty 
         board[row][col] = symbol;
-        ++movesMade;
+        ++movesMade; //Increament MovesMade
         return true;
     }
     return false;
@@ -15,15 +15,15 @@ bool GameLogic::makeMove(int row, int col, char symbol) {
 
 bool GameLogic::checkWin(char symbol) const {
  
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i) { //Check row or coloumn Win
         if ((board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol) ||
             (board[0][i] == symbol && board[1][i] == symbol && board[2][i] == symbol))
             return true;
-    }
+    } 
 
 
     return (board[0][0] == symbol && board[1][1] == symbol && board[2][2] == symbol) ||
-           (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol);
+           (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol); //Check Diagonal Win
 }
 
 bool GameLogic::checkDraw() const {
