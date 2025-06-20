@@ -7,6 +7,7 @@ CONFIG -= app_bundle
 
 SOURCES += \
     DatabaseTest.cpp \
+    IntegrationTest.cpp \
     aitest.cpp \
     gamelogictest.cpp \
     main.cpp \
@@ -18,11 +19,11 @@ SOURCES += \
     usermanager.cpp \
     registerform.cpp \
     gamesetupdialog.cpp \
-    historydialog.cpp \
-    IntegrationTest.cpp
+    historydialog.cpp
 
 HEADERS += \
     DatabaseTest.h \
+    IntegrationTest.h \
     aitest.h \
     gamelogictest.h \
     mainwindow.h \
@@ -33,5 +34,4 @@ HEADERS += \
     usermanager.h \
     registerform.h \
     gamesetupdialog.h \
-    historydialog.h \
-    IntegrationTest.h
+    historydialog.h
