@@ -18,7 +18,6 @@ Board::Board(const QString &username, char playerSymbol, QString mode, QString a
     ai(nullptr),
     aiDifficulty(aiDifficulty),
     statusLabel(nullptr),
-    undoButton(nullptr),
     restartButton(nullptr),
     returnButton(nullptr),
     animationsEnabled(true)
@@ -64,19 +63,15 @@ Board::Board(const QString &username, char playerSymbol, QString mode, QString a
 
     // Control buttons
     QHBoxLayout *buttonLayout = new QHBoxLayout();
-    undoButton = new QPushButton("Undo", this);
-    undoButton->setMinimumHeight(50);
     restartButton = new QPushButton("Restart", this);
     restartButton->setMinimumHeight(50);
     returnButton = new QPushButton("Return to Main Menu", this);
     returnButton->setMinimumHeight(50);
-    buttonLayout->addWidget(undoButton);
     buttonLayout->addWidget(restartButton);
     buttonLayout->addWidget(returnButton);
     mainLayout->addLayout(buttonLayout);
 
     // Connect control buttons
-    connect(undoButton, &QPushButton::clicked, this, &Board::handleUndo);
     connect(restartButton, &QPushButton::clicked, this, &Board::handleRestart);
     connect(returnButton, &QPushButton::clicked, this, &Board::handleReturn);
 
@@ -142,7 +137,7 @@ void Board::handleCellClick() {
     }
 
     currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-    updateStatus(); // Ensure status is updated after turn change
+    updateStatus();
 
     if (mode == "PvE" && currentPlayer == aiSymbol) {
         makeAIMove();
@@ -218,19 +213,6 @@ void Board::updateStatus() {
     } else if (mode == "PvE") {
         statusLabel->setText(QString("%1's Turn").arg(currentPlayer == playerSymbol ? username : "AI"));
     }
-    undoButton->setEnabled(!moveHistory.empty());
-}
-
-void Board::handleUndo() {
-    if (moveHistory.empty()) return;
-    QString move = moveHistory.top();
-    moveHistory.pop();
-    QStringList parts = move.split(",");
-    int row = parts[0].toInt(), col = parts[1].toInt();
-    gameLogic->makeMove(row, col, ' ');
-    cells[row][col]->setText("");
-    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-    updateStatus();
 }
 
 void Board::handleRestart() {
