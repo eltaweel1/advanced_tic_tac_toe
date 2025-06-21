@@ -29,7 +29,6 @@ private slots:
     void handleCellClick();
     void makeAIMove();
     void updateStatus();
-    void handleUndo();
     void handleRestart();
     void handleReturn();
     void animateCell(QPushButton *button);
@@ -49,7 +48,6 @@ private:
     QString aiDifficulty;
     QPushButton *cells[3][3];
     QLabel *statusLabel;
-    QPushButton *undoButton;
     QPushButton *restartButton;
     QPushButton *returnButton;
     std::stack<QString> moveHistory;
