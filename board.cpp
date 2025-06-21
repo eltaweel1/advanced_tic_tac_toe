@@ -235,7 +235,6 @@ void Board::handleRestart() {
 void Board::handleReturn() {
     emit returnToMainRequested();
 }
-
 void Board::animateCell(QPushButton *button) {
     QPropertyAnimation *animation = new QPropertyAnimation(button, "opacity");
     animation->setDuration(300);
